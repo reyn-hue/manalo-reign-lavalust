@@ -11,4 +11,12 @@ class UserController extends Controller {
     {
         parent::__construct();
     }
+
+    public function showUsers()
+    {
+        $this->call->database();
+        $this->call->model('UserModel');
+        $data['users'] = $this->UserModel->all(); //calling data
+        $this->call->view('users', $data); // showing
+    }
 }
