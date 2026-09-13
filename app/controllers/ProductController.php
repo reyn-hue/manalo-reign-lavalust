@@ -10,15 +10,15 @@ namespace App\Controllers;
 use App\Models\ProductModel;
 
 */
-class ProductController {
+class ProductController extends Controller {
     public function index() {
         $model = new ProductModel();
         $products = $model->findAll();
-        return view('index', ['products' => $products]);
+        return $this->call->view('index', ['products' => $products]);
     }
 
     public function create() {
-        return view('create');
+        return $this->call->view('create');
     }
 
     public function store() {
@@ -35,7 +35,7 @@ class ProductController {
     public function edit($id) {
         $model = new ProductModel();
         $product = $model->find($id);
-        return view('edit', ['product' => $product]);
+        return $this->call->view('edit', ['product' => $product]);
     }
 
     public function update($id) {
