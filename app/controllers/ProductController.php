@@ -14,11 +14,11 @@ class ProductController {
     public function index() {
         $model = new ProductModel();
         $products = $model->findAll();
-        return view('products/index', ['products' => $products]);
+        return view('index', ['products' => $products]);
     }
 
     public function create() {
-        return view('products/create');
+        return view('create');
     }
 
     public function store() {
@@ -35,7 +35,7 @@ class ProductController {
     public function edit($id) {
         $model = new ProductModel();
         $product = $model->find($id);
-        return view('products/edit', ['product' => $product]);
+        return view('edit', ['product' => $product]);
     }
 
     public function update($id) {
