@@ -12,8 +12,8 @@ use App\Models\ProductModel;
 */
 class ProductController extends Controller {
     public function index() {
-        $model = new ProductModel();
-        $products = $model->findAll();
+        $model = $this->call->model('ProductModel');
+        $products = $model->all();
         return $this->call->view('index', ['products' => $products]);
     }
 
@@ -22,7 +22,7 @@ class ProductController extends Controller {
     }
 
     public function store() {
-        $model = new ProductModel();
+        $model = $this->call->model('ProductModel');
         $model->insert([
             'product_name' => $_POST['product_name'],
             'description' => $_POST['description'],
@@ -33,13 +33,13 @@ class ProductController extends Controller {
     }
 
     public function edit($id) {
-        $model = new ProductModel();
+        $model = $this->call->model('ProductModel');
         $product = $model->find($id);
         return $this->call->view('edit', ['product' => $product]);
     }
 
     public function update($id) {
-        $model = new ProductModel();
+        $model = $this->call->model('ProductModel');
         $model->update($id, [
             'product_name' => $_POST['product_name'],
             'description' => $_POST['description'],
@@ -50,7 +50,7 @@ class ProductController extends Controller {
     }
 
     public function delete($id) {
-        $model = new ProductModel();
+        $model = $this->call->model('ProductModel');
         $model->delete($id);
         redirect('/products');
     }
