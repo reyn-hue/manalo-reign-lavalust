@@ -54,4 +54,4 @@ $router->get('/products/create', 'ProductController::create', ['middleware' => '
 $router->post('/products/store', 'ProductController::store', ['middleware' => 'AuthMiddleware']);
 $router->get('/products/edit/{id}', 'ProductController::edit', ['middleware' => 'AuthMiddleware']);
 $router->post('/products/update/{id}', 'ProductController::update', ['middleware' => 'AuthMiddleware']);
-$router->get('/products/delete/{id}', 'ProductController::delete', ['middleware' => 'AuthMiddleware']);
+$router->post('/products/delete/{id}', 'ProductController::delete', ['middleware' => 'AuthMiddleware']);
