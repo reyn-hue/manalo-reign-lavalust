@@ -136,6 +136,24 @@ class Errors
 	 */
 	public function show_database_error($message, $sql = '', $bindings = [], $exception = null, $template = 'error_db')
 	{
+		if (defined('IS_CLI') && IS_CLI)
+		{
+			if (config_item('environment') === 'development')
+			{
+				fwrite(STDERR, "Database Error: {$message}" . PHP_EOL);
+				if ($sql !== '')
+				{
+					fwrite(STDERR, "SQL: {$sql}" . PHP_EOL);
+				}
+			}
+			else
+			{
+				fwrite(STDERR, "Database error." . PHP_EOL);
+			}
+
+			exit(1);
+		}
+
 		http_response_code(500);
 		
 		if (config_item('environment') !== 'development') {

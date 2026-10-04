@@ -44,4 +44,28 @@ defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 */
 /** @var object $router **/
 
-$router->get('/', 'Welcome::index');
+// Default route → Signup page
+$router->get('/', 'AuthController::showSignup');
+
+// Auth routes
+$router->get('signup', 'AuthController::showSignup');   // show signup form
+$router->post('signup', 'AuthController::signup');      // process signup
+
+$router->get('login', 'AuthController::showLogin');     // show login form
+$router->post('login', 'AuthController::login');        // process login
+
+$router->get('logout', 'AuthController::logout');       // logout
+
+// Migration routes (optional, for dev work)
+$router->get('create-migration/{migration_class}', 'MigrationController::create_migration');
+$router->get('migrate', 'MigrationController::migrate');
+$router->get('rollback', 'MigrationController::rollback');
+$router->get('rollback-all', 'MigrationController::rollback_all');
+$router->get('refresh', 'MigrationController::refresh');
+$router->get('status', 'MigrationController::status');
+
+// Product routes (CRUD)
+$router->get('products', 'ProductController::index');          // list products
+$router->post('products', 'ProductController::store');         // create product
+$router->put('products/{id}', 'ProductController::update');    // update product
+$router->delete('products/{id}', 'ProductController::delete'); // delete product

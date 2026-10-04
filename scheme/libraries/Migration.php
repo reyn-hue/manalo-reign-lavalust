@@ -100,7 +100,7 @@ class Migration {
             CREATE TABLE IF NOT EXISTS `{$table}` (
                 `id`         INT      NOT NULL AUTO_INCREMENT,
                 `migration`  INT      NOT NULL,
-                `applied_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                `applied_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (`id`),
                 UNIQUE KEY `migration_unique` (`migration`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci

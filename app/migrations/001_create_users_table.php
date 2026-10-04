@@ -32,7 +32,7 @@ class Create_users_table {
                 ],
                 'email' => [
                     'type'       => 'VARCHAR',
-                    'constraint' => 255,
+                    'constraint' => 191,
                     'null'       => FALSE,
                     'unique'     => TRUE,
                 ],
@@ -55,7 +55,7 @@ class Create_users_table {
                     'default'    => 1,
                 ],
                 'created_at' => [
-                    'type'    => 'DATETIME',
+                    'type'    => 'TIMESTAMP',
                     'null'    => FALSE,
                     'default' => 'CURRENT_TIMESTAMP',
                 ],
@@ -67,7 +67,6 @@ class Create_users_table {
             ])
             ->add_key('id', primary: TRUE)
             ->add_key('username', unique: TRUE, name: 'username_unique')
-            ->add_key('email', name: 'email_idx')
             ->add_key('role', name: 'role_idx')
             ->create_table('users');
     }
