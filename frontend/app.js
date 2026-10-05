@@ -60,11 +60,19 @@ function setAuthMode(mode) {
   showMessage(authMessage);
 }
 
+function navigate(path, replace = false) {
+  const method = replace ? "replaceState" : "pushState";
+  window.history[method]({}, "", path);
+}
+
 async function enterDashboard(user) {
   currentUser = user;
   document.getElementById("user-name").textContent = user.username || user.email;
   authPanel.classList.add("hidden");
   dashboard.classList.remove("hidden");
+  if (window.location.pathname !== "/products") {
+    navigate("/products", true);
+  }
   await loadProducts();
 }
 
@@ -155,7 +163,9 @@ async function deleteProduct(id, button) {
 }
 
 document.getElementById("switch-mode").addEventListener("click", () => {
-  setAuthMode(authMode === "login" ? "signup" : "login");
+  const mode = authMode === "login" ? "signup" : "login";
+  navigate(mode === "signup" ? "/signup" : "/login");
+  setAuthMode(mode);
 });
 
 authForm.addEventListener("submit", async (event) => {
@@ -170,6 +180,7 @@ authForm.addEventListener("submit", async (event) => {
     if (authMode === "signup") {
       await api("auth/signup", { method: "POST", body: JSON.stringify(payload) });
       authForm.reset();
+      navigate("/login");
       setAuthMode("login");
       showMessage(authMessage, "Account created. Sign in to continue.", "success");
       return;
@@ -217,6 +228,7 @@ document.getElementById("logout-button").addEventListener("click", async () => {
     dashboard.classList.add("hidden");
     authPanel.classList.remove("hidden");
     authForm.reset();
+    navigate("/login");
     setAuthMode("login");
   } catch (error) {
     showMessage(productMessage, error.message, "error");
@@ -228,11 +240,27 @@ async function restoreSession() {
     const result = await api("auth/session");
     await enterDashboard(result.data);
   } catch (error) {
-    setAuthMode("login");
+    const path = window.location.pathname;
+    if (path === "/products") {
+      navigate("/login", true);
+    }
+    setAuthMode(path === "/signup" ? "signup" : "login");
     if (error.status !== 401) {
       showMessage(authMessage, error.message, "error");
     }
   }
 }
+
+window.addEventListener("popstate", () => {
+  const path = window.location.pathname;
+  if (path === "/products") {
+    restoreSession();
+    return;
+  }
+
+  dashboard.classList.add("hidden");
+  authPanel.classList.remove("hidden");
+  setAuthMode(path === "/signup" ? "signup" : "login");
+});
 
 restoreSession();
