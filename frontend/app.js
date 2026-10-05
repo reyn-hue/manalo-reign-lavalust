@@ -12,6 +12,33 @@ let authMode = "login";
 let currentUser = null;
 let products = [];
 
+function readableMessage(value) {
+  if (typeof value === "string") {
+    return value.trim() || null;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(readableMessage).filter(Boolean).join(" ") || null;
+  }
+
+  if (value && typeof value === "object") {
+    for (const key of ["message", "error", "detail"]) {
+      const message = readableMessage(value[key]);
+      if (message) return message;
+    }
+
+    const messages = Object.entries(value)
+      .map(([field, errors]) => {
+        const message = readableMessage(errors);
+        return message ? `${field}: ${message}` : "";
+      })
+      .filter(Boolean);
+    return messages.join(" ") || null;
+  }
+
+  return null;
+}
+
 async function api(path, options = {}) {
   const response = await fetch(`/api/${path}`, {
     credentials: "same-origin",
@@ -30,8 +57,11 @@ async function api(path, options = {}) {
     throw new Error("The server returned an unreadable response.");
   }
 
-  if (!response.ok || result.success === false) {
-    const error = new Error(result.error || result.message || "The request failed.");
+  if (!response.ok || result?.success === false) {
+    const message = readableMessage(result?.error)
+      || readableMessage(result?.message)
+      || readableMessage(result?.errors);
+    const error = new Error(message || "The request failed. Please try again.");
     error.status = response.status;
     throw error;
   }
@@ -39,7 +69,7 @@ async function api(path, options = {}) {
 }
 
 function showMessage(element, text = "", kind = "") {
-  element.textContent = text;
+  element.textContent = readableMessage(text) || "";
   element.className = `message${kind ? ` ${kind}` : ""}`;
 }
 
