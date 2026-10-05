@@ -121,7 +121,7 @@ class Errors
 			$template_path = APP_DIR.'views/errors/';
 		}
 		require_once($template_path.'error_php.php');
-		die();
+		exit();
 	}
 
 	/**
@@ -136,6 +136,30 @@ class Errors
 	 */
 	public function show_database_error($message, $sql = '', $bindings = [], $exception = null, $template = 'error_db')
 	{
+		if (defined('IS_CLI') && IS_CLI)
+		{
+			if (config_item('environment') === 'development')
+			{
+				fwrite(STDERR, "Database Error: {$message}" . PHP_EOL);
+				if ($sql !== '')
+				{
+					fwrite(STDERR, "SQL: {$sql}" . PHP_EOL);
+				}
+			}
+			else
+			{
+				fwrite(STDERR, "Database error." . PHP_EOL);
+			}
+
+			exit(1);
+		}
+
+		http_response_code(500);
+		
+		if (config_item('environment') !== 'development') {
+			exit();
+		}
+
 		$template_path = config_item('error_view_path');
 		if (empty($template_path)) {
 			$template_path = APP_DIR . 'views/errors/';
@@ -153,10 +177,7 @@ class Errors
 		$line = $error_line;
 		$trace = $error_trace;
 
-		http_response_code(500);
 		require_once($template_path . $template . '.php');
 		exit();
 	}
-
-
 }

@@ -29,7 +29,7 @@ class Initial_setup {
                     'null'     => FALSE,
                 ],
                 'applied_at' => [
-                    'type'    => 'DATETIME',
+                    'type'    => 'TIMESTAMP',
                     'null'    => FALSE,
                     'default' => 'CURRENT_TIMESTAMP',
                 ],

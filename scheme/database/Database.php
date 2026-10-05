@@ -303,19 +303,58 @@ class Database {
      */
     private function validate_identifier($name)
     {
+        static $blocked_keywords = [
+            'SELECT', 'INSERT', 'UPDATE', 'DELETE', 'DROP', 'CREATE', 'ALTER',
+            'TRUNCATE', 'EXEC', 'EXECUTE', 'UNION', 'GRANT', 'REVOKE', 'LOAD',
+            'OUTFILE', 'DUMPFILE', 'SLEEP', 'BENCHMARK', 'WAITFOR', 'XP_CMDSHELL',
+        ];
+
         $name = trim($name);
 
-        if (preg_match('/\w+\s*\(.*\)/', $name)) {
+        if ($name === '*') {
             return true;
         }
 
-        if (preg_match('/^[a-zA-Z0-9_\.]+(\s+(as\s+)?[a-zA-Z0-9_]+)?$/i', $name)) {
+        if ($name === '' || strlen($name) > 256) {
+            throw new Exception("Invalid SQL identifier: {$name}");
+        }
+
+        if (preg_match('/[\x00-\x1F\x7F]/', $name)) {
+            throw new Exception("Invalid SQL identifier: {$name}");
+        }
+
+        if (preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*\s*\([^)]*\)(\s+AS\s+[a-zA-Z_][a-zA-Z0-9_]*)?$/i', $name)) {
             return true;
         }
 
-        throw new Exception("Invalid SQL identifier: {$name}");
+        $base = preg_replace('/\s+(AS\s+)?[a-zA-Z_][a-zA-Z0-9_]*$/i', '', $name);
+        $base = trim($base);
+
+        $parts = explode('.', $base);
+
+        if (count($parts) > 3) {
+            throw new Exception("Invalid SQL identifier: {$name}");
+        }
+
+        foreach ($parts as $part) {
+            $part = trim($part);
+
+            // Strip backtick quoting
+            if (strlen($part) >= 2 && $part[0] === '`' && $part[-1] === '`') {
+                $part = substr($part, 1, -1);
+            }
+
+            if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $part)) {
+                throw new Exception("Invalid SQL identifier: {$name}");
+            }
+
+            if (in_array(strtoupper($part), $blocked_keywords, true)) {
+                throw new Exception("Invalid SQL identifier: {$name}");
+            }
+        }
+
+        return true;
     }
-
 
     /**
      * Raw Query
@@ -336,7 +375,9 @@ class Database {
             $t_start = microtime(true);
             $stmt->execute($this->bind_values);
             $t_elapsed = microtime(true) - $t_start;
-
+            
+            $this->last_id_inserted = $this->db->lastInsertId();
+            
             if ($this->query_logging) {
                 $this->query_log[] = [
                     'query'    => $query,
@@ -1181,38 +1222,13 @@ class Database {
      * limit
      *
      * @param  integer $limit
-     * @param  integer $end
+     * @param  integer $offset
      * @return object
      */
-    public function limit($limit, $end = null)
+    public function limit($limit, $offset = null)
     {
-        $driver = $this->driver;
-
-        if ($end === null) {
-            switch ($driver) {
-                case 'mysql':
-                case 'pgsql':
-                case 'sqlite':
-                    $this->limit = " LIMIT $limit";
-                    break;
-                case 'sqlsrv':
-                    $this->limit = " OFFSET 0 ROWS FETCH NEXT $limit ROWS ONLY";
-                    break;
-            }
-        } else {
-            switch ($driver) {
-                case 'mysql':
-                    $this->limit = " LIMIT $limit, $end";
-                    break;
-                case 'pgsql':
-                case 'sqlite':
-                    $this->limit = " LIMIT $end OFFSET $limit";
-                    break;
-                case 'sqlsrv':
-                    $this->limit = " OFFSET $limit ROWS FETCH NEXT $end ROWS ONLY";
-                    break;
-            }
-        }
+        $this->limit  = (int) $limit;
+        $this->offset = $offset !== null ? (int) $offset : null;
 
         return $this;
     }
@@ -1225,9 +1241,7 @@ class Database {
      */
     public function offset($offset)
     {
-        $this->offset  = ' OFFSET ';
-        $this->offset .= $offset;
-
+        $this->offset = (int) $offset;
         return $this;
     }
 
@@ -1240,9 +1254,11 @@ class Database {
      */
     public function pagination($records_per_page, $page)
     {
-        $offset = ($page - 1) * $records_per_page;
+        $page = max(1, (int) $page);
+        $records_per_page = (int) $records_per_page;
 
-        $this->limit = ' LIMIT ' . $offset . ', ' . $records_per_page;
+        $this->limit  = $records_per_page;
+        $this->offset = ($page - 1) * $records_per_page;
 
         return $this;
     }
@@ -1359,11 +1375,30 @@ class Database {
         }
 
         if ($this->limit !== NULL) {
-            $this->sql .= $this->limit;
-        }
+            $driver = $this->driver;
 
-        if ($this->offset !== NULL) {
-            $this->sql .= $this->offset;
+            switch ($driver) {
+                case 'mysql':
+                    if ($this->offset !== null) {
+                        $this->sql .= " LIMIT {$this->offset}, {$this->limit}";
+                    } else {
+                        $this->sql .= " LIMIT {$this->limit}";
+                    }
+                    break;
+
+                case 'pgsql':
+                case 'sqlite':
+                    $this->sql .= " LIMIT {$this->limit}";
+                    if ($this->offset !== null) {
+                        $this->sql .= " OFFSET {$this->offset}";
+                    }
+                    break;
+
+                case 'sqlsrv':
+                    $offset = $this->offset ?? 0;
+                    $this->sql .= " OFFSET {$offset} ROWS FETCH NEXT {$this->limit} ROWS ONLY";
+                    break;
+            }
         }
     }
 

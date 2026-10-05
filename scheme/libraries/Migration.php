@@ -68,6 +68,7 @@ class Migration {
 
         if (!config_item('migration_enabled')) {
             $this->error('Migrations are disabled in the configuration.');
+            exit;
         }
 
         $this->migrations_folder = config_item('migration_path');
@@ -99,7 +100,7 @@ class Migration {
             CREATE TABLE IF NOT EXISTS `{$table}` (
                 `id`         INT      NOT NULL AUTO_INCREMENT,
                 `migration`  INT      NOT NULL,
-                `applied_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                `applied_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (`id`),
                 UNIQUE KEY `migration_unique` (`migration`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
@@ -199,7 +200,7 @@ EOT;
                 $migration->up();
 
                 $this->record_migration($version);
-                $this->success("✓ Migrated: " . basename($file));
+                $this->success("Migrated: " . basename($file));
                 $migrated++;
             }
         }
