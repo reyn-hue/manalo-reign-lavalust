@@ -1,7 +1,8 @@
 FROM php:8.3-apache
 
 RUN docker-php-ext-install pdo_mysql \
-    && a2enmod rewrite
+    && a2enmod rewrite \
+    && printf 'session.auto_start=0\n' > /usr/local/etc/php/conf.d/zz-session.ini
 
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 
