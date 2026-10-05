@@ -48,10 +48,6 @@ defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 $router->get('/', 'AuthController::showSignup');
 $router->get('/welcome', 'Welcome::index');
 
-// Student routes
-$router->get('/student', 'StudentController::index');
-$router->get('/student/profile', 'StudentController::profile', ['middleware' => 'StudentMiddleware']);
-
 // Auth routes
 $router->get('signup', 'AuthController::showSignup');   // show signup form
 $router->post('signup', 'AuthController::signup');      // process signup
