@@ -1,4 +1,4 @@
-module.exports = async function apiProxy(req, res) {
+module.exports = async function proxyApiRequest(req, res) {
   const backendValue = process.env.BACKEND_URL;
   if (!backendValue) {
     res.status(500).json({ success: false, error: "BACKEND_URL is not configured." });
