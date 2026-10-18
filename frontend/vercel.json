@@ -1,10 +1,23 @@
 {
-  "version": 2,
-  "buildCommand": "node build.js",
-  "outputDirectory": "dist",
-  "rewrites": [
-    { "source": "/login", "destination": "/" },
-    { "source": "/signup", "destination": "/" },
-    { "source": "/products", "destination": "/" }
-  ]
+    "version":  2,
+    "buildCommand":  "node build.js",
+    "outputDirectory":  "dist",
+    "rewrites":  [
+                     {
+                         "source":  "/api/:path*",
+                         "destination":  "https://manalo-reign-lavalust-1.onrender.com/api/:path*"
+                     },
+                     {
+                         "source":  "/login",
+                         "destination":  "/"
+                     },
+                     {
+                         "source":  "/signup",
+                         "destination":  "/"
+                     },
+                     {
+                         "source":  "/products",
+                         "destination":  "/"
+                     }
+                 ]
 }
