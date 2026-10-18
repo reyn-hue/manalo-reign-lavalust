@@ -1,6 +1,7 @@
 {
   "version": 2,
-  "outputDirectory": ".",
+  "buildCommand": "node build.js",
+  "outputDirectory": "dist",
   "rewrites": [
     { "source": "/login", "destination": "/" },
     { "source": "/signup", "destination": "/" },
