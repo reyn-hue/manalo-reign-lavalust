@@ -4,10 +4,6 @@
     "outputDirectory":  "dist",
     "rewrites":  [
                      {
-                         "source":  "/api/:path*",
-                         "destination":  "https://manalo-reign-lavalust-1.onrender.com/api/:path*"
-                     },
-                     {
                          "source":  "/login",
                          "destination":  "/"
                      },
