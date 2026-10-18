@@ -4,6 +4,30 @@
     "outputDirectory":  "dist",
     "rewrites":  [
                      {
+                         "source":  "/api/auth/session",
+                         "destination":  "https://manalo-reign-lavalust-1.onrender.com/api/auth/session"
+                     },
+                     {
+                         "source":  "/api/auth/signup",
+                         "destination":  "https://manalo-reign-lavalust-1.onrender.com/api/auth/signup"
+                     },
+                     {
+                         "source":  "/api/auth/login",
+                         "destination":  "https://manalo-reign-lavalust-1.onrender.com/api/auth/login"
+                     },
+                     {
+                         "source":  "/api/auth/logout",
+                         "destination":  "https://manalo-reign-lavalust-1.onrender.com/api/auth/logout"
+                     },
+                     {
+                         "source":  "/api/products",
+                         "destination":  "https://manalo-reign-lavalust-1.onrender.com/api/products"
+                     },
+                     {
+                         "source":  "/api/products/:id",
+                         "destination":  "https://manalo-reign-lavalust-1.onrender.com/api/products/:id"
+                     },
+                     {
                          "source":  "/login",
                          "destination":  "/"
                      },
