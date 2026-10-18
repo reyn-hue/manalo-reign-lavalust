@@ -1,9 +1,10 @@
-{
+﻿{
   "version": 2,
-  "outputDirectory": ".",
+  "outputDirectory": "public",
   "rewrites": [
     { "source": "/login", "destination": "/" },
     { "source": "/signup", "destination": "/" },
     { "source": "/products", "destination": "/" }
   ]
 }
+
